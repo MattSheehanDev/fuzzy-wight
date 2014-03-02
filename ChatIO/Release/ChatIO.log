@@ -1,16 +1,14 @@
-﻿Build started 3/1/2014 12:07:19 PM.
+﻿Build started 3/1/2014 7:40:54 PM.
      1>Project "C:\Users\sheehamj\Documents\Visual Studio 2013\Projects\ChatIO\ChatIO\ChatIO.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Release\ChatIO.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
-         stdafx.cpp
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\ChatIO.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ChatIO.cpp ChatService.cpp FileManager.cpp Person.cpp Server.cpp ServiceBase.cpp Socket.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\ChatIO.pch" /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ChatIO.cpp ChatService.cpp Person.cpp Server.cpp Socket.cpp
          ChatIO.cpp
          ChatService.cpp
-         FileManager.cpp
          Person.cpp
          Server.cpp
-         ServiceBase.cpp
          Socket.cpp
+     1>Socket.cpp(16): warning C4005: '_WIN32_WINNT' : macro redefinition
+                 C:\Program Files (x86)\Windows Kits\8.1\Include\shared\SDKDDKVer.h(200) : see previous definition of '_WIN32_WINNT'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\sheehamj\Documents\Visual Studio 2013\Projects\ChatIO\Release\ChatIO.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\sheehamj\Documents\Visual Studio 2013\Projects\ChatIO\Release\ChatIO.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\sheehamj\Documents\Visual Studio 2013\Projects\ChatIO\Release\ChatIO.lib" /MACHINE:X86 /SAFESEH Release\ChatIO.obj
          Release\ChatService.obj
@@ -27,4 +25,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:25.63
+Time Elapsed 00:00:16.25

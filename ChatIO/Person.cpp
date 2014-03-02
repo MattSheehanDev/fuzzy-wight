@@ -15,11 +15,11 @@ Person::Person() : Socket() {}
 
 Person::~Person() 
 {
-	//Close();
-	//~LPSocket();
+	Close();
 }
 
 
+//Creates user socket and initializes vars
 BOOL Person::UserPrep(size_t num)
 {
 	if (!CreateSocketIO())
@@ -29,9 +29,9 @@ BOOL Person::UserPrep(size_t num)
 	this->login = FALSE;
 
 	ZeroMemory(packet.buffer, sizeof(packet.buffer));
+	ZeroMemory(&(ol), sizeof(OVERLAPPED));
 	packet.bytes_rcvd = 0;
 	flags = 0;
-	ZeroMemory(&(ol), sizeof(OVERLAPPED));
 
 	//Buffer
 	packet.data_buffer.len = DATA_BUFSIZE;
@@ -41,6 +41,7 @@ BOOL Person::UserPrep(size_t num)
 }
 
 
+//Send welcome message
 void Person::Welcome()
 {
 	//Create welcome string and prompt for name
@@ -51,7 +52,6 @@ void Person::Welcome()
 		" > Please write your name and press Enter: ";
 
 	std::string str = oss.str();
-
 	wsabuf.buf = (CHAR*) str.c_str();
 	wsabuf.len = strlen(str.c_str());
 
@@ -70,22 +70,19 @@ BOOL WINAPI Person::IOThread()
 		return false;
 
 	//Enter pressed
-	BOOL enter;
-	std::string("\r\n") == std::string(packet.buffer) ? enter = true : enter = false;
-
-	//if (buffer != "" && enter)
-	//{
-		if (!login && enter)
+	if(std::string(packet.buffer).find("\n") != std::string::npos)
+	{
+		if (!login)
 		{
 			if (!Login())
 				return false;
 		}
-		else if (login && enter)
+		else if (login)
 		{
 			if (!Message())
 				return false;
 		}
-	//}
+	}
 	else
 	{
 		buffer += packet.buffer;
@@ -99,12 +96,13 @@ BOOL WINAPI Person::IOThread()
 }
 
 
-
+//Login the user
 BOOL Person::Login()
 {
 	//Check if name exists
 	if (Server::users.find(buffer) != Server::users.end())
 	{
+		//Create message string
 		std::string str = "User Name is already in use. Pick Again: ";
 		wsabuf.buf = (CHAR*) str.c_str();
 		wsabuf.len = strlen(str.c_str());
@@ -147,13 +145,14 @@ BOOL Person::Login()
 }
 
 
+//Send a message to everyone
 BOOL Person::Message()
 {
+	//Create message string
 	std::ostringstream oss;
 	oss << " > " << name << " : " << buffer << "\r\n";
 
 	std::string str = oss.str();
-
 	wsabuf.buf = (CHAR*) str.c_str();
 	wsabuf.len = strlen(str.c_str());
 
@@ -168,42 +167,45 @@ BOOL Person::Message()
 }
 
 
-BOOL Person::Broadcast(BOOL exceptMyself)
+//Broadcasts the user has left the room
+BOOL Person::Logout()
 {
-	//concurrency::parallel_for_each(begin(Server::users), end(Server::users), [this, &exceptMyself](std::pair<SOCKET, Person*> pair)
-	for each(std::pair<std::string, Person*> pair in Server::users)
-	{
-		Person* user = pair.second;
+	std::ostringstream oss;
+	oss << name << " left the room.\r\n";
 
-		if (!exceptMyself || user->socket != this->socket)
-		{
-			if (!user->Send(this->wsabuf))
-			{
-				if (WSAGetLastError() != ERROR_IO_PENDING)
-					break;
-			}
-		}
-	}
+	std::string str = oss.str();
+	wsabuf.buf = (CHAR*) str.c_str();
+	wsabuf.len = strlen(str.c_str());
 
-	//Receive more
-	if (exceptMyself)
-		this->Receive();
+	FileManager::File.Write(wsabuf.buf, wsabuf.len);
+
+	if (!Broadcast(TRUE))
+		return false;
+
+	ClearBuffer();
 
 	return true;
 }
 
 
-WSABUF Person::Buffer(std::string str)
+//Broadcast message to everyone
+BOOL Person::Broadcast(BOOL exceptMyself)
 {
-	WSABUF buf;
+	for each(std::pair<std::string, Person*> pair in Server::users)
+	{
+		Person* user = pair.second;
 
-	buf.buf = (CHAR*)str.c_str();
-	buf.len = strlen(str.c_str());
+		if (!exceptMyself || user->socket != this->socket)
+			send(user->socket, wsabuf.buf, wsabuf.len, 0);
+	}
 
-	return std::move(buf);
+	this->Receive();
+
+	return true;
 }
 
 
+//Clear buffer
 void Person::ClearBuffer()
 {
 	ZeroMemory(packet.buffer, sizeof(packet.buffer));

@@ -31,12 +31,9 @@ namespace io
 		bool CreateSocketIO();
 
 		bool Send(WSABUF buf);
-		bool SendWithoutCallback(WSABUF buf);
-
 		bool Receive();
 
 		void Close();
-
 		bool ErrorCheck();
 
 

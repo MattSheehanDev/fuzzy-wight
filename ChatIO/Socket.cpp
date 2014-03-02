@@ -13,6 +13,9 @@ using namespace io;
 using namespace files;
 
 
+#define _WIN32_WINNT 0x0600
+
+
 
 //Creates Socket and properties
 bool Socket::CreateSocketIO()
@@ -24,14 +27,6 @@ bool Socket::CreateSocketIO()
 	//Create ThreadPool io
 	if ((io = CreateThreadpoolIo((HANDLE) socket, Server::IoCompletionCallback, NULL, NULL)) == NULL)
 		return false;
-
-	////Create Event
-	//if ((hEvent = WSACreateEvent()) == WSA_INVALID_EVENT)
-	//	return false;
-
-	////Select Accept, Read, Close
-	//if (WSAEventSelect(socket, hEvent, FD_ACCEPT | FD_READ | FD_CLOSE) != 0)
-	//	return false;
 
 	return true;
 }
@@ -54,26 +49,6 @@ bool Socket::Send(WSABUF buf)
 	ZeroMemory(&(ol), sizeof(OVERLAPPED));
 
 	StartThreadpoolIo(io);
-
-	//Send request
-	if (WSASend(socket, &(buf), 1, NULL, 0, &ol, NULL) == SOCKET_ERROR)
-	{
-		if (WSAGetLastError() != ERROR_IO_PENDING)
-		{
-			CancelThreadpoolIo(io);
-			return false;
-		}
-	}
-	return true;
-}
-
-
-bool Socket::SendWithoutCallback(WSABUF buf)
-{
-	//Zero overlap
-	ZeroMemory(&(ol), sizeof(OVERLAPPED));
-
-	//StartThreadpoolIo(io);
 
 	//Send request
 	if (WSASend(socket, &(buf), 1, NULL, 0, &ol, NULL) == SOCKET_ERROR)
@@ -119,14 +94,7 @@ bool Socket::Receive()
 //Cancels/Closes threadpool io. Closes Socket.
 void Socket::Close()
 {
-	//Person* user = Server::users[socket];
-
-//	Server::users.erase(socket);
-
 	printf("Socket %d closed\n", socket);
 	closesocket(socket);
 	CloseThreadpoolIo(io);
-
-	//this->~Socket();
-	//delete user;
 }

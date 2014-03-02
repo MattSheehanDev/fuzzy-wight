@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "Server.h"
-//#include "ChatService.h"
-
 
 using namespace io;
-//using namespace service;
 
 #define PORT 23
 
@@ -16,7 +13,6 @@ std::map<std::string, Person*> Server::users;
 void CALLBACK Server::WelcomeCallback(PTP_CALLBACK_INSTANCE, PVOID context, PVOID overlap, ULONG ioResult, ULONG_PTR bytesTransferred, PTP_IO io)
 {
 	Person* user = static_cast<Person*>(overlap);
-
 	user->Welcome();
 }
 
@@ -30,9 +26,11 @@ void CALLBACK Server::IoCompletionCallback(PTP_CALLBACK_INSTANCE, PVOID context,
 	
 	if (user->IOThread() == FALSE)
 	{
-		user->Close();
-		Server::users.erase(user->name);
-		delete user;
+		if (Server::users.erase(user->name) > 0)
+		{
+			user->Logout();
+			delete user;
+		}
 	}
 }
 
@@ -80,9 +78,6 @@ bool Server::CreateListeningSocket()
 	if (WSAEventSelect(listener->socket, listener->hEvent, FD_ACCEPT) != 0)
 		return false;
 
-
-	//if (!listener->CreateSocketIO())
-	//	return false;
 
 	//Server Properties
 	sa_server.sin_family = AF_INET;
@@ -145,32 +140,6 @@ void Server::Run()
 
 		//Reset Event
 		WSAEnumNetworkEvents(listener->socket, listener->hEvent, &network_events);
-
-		//return true;
-
-		//if (!Accept())
-		//	continue;
-
-		////Create a new user
-		//Person* user = new Person();		
-
-		//Set 
-		//ZeroMemory(user->socket->packet.buffer, sizeof(user->socket->packet.buffer));
-		//user->socket->packet.bytes_send = 0;
-
-		//Accepts socket
-		//if ((user->socket->socket = WSAAccept(listener->socket, &user->socket->addr, NULL, NULL, 0)) == SOCKET_ERROR)
-		//{
-		//	user->socket->Close();
-		//	delete user;
-		//	continue;
-		//}
-
-
-		//users.push_back(user);
-		
-		//Initially Welcome User
-		//user->Welcome();
 	}
 }
 

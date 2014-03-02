@@ -14,34 +14,34 @@ using namespace service;
 
 int main(int argc, TCHAR* argv[])
 {
-	//AuditService service(SERVICE_NAME);
-	//if (!AuditService::Run(service))
+	ChatService service(SERVICE_NAME);
+	if (!ChatService::Run(service))
+	{
+		auto err = GetLastError();
+		wprintf(L"Service failed to run\n");
+		return 1;
+	}
+
+
+
+	//Server server;
+
+	////Start Server
+	//if (!server.Startup())
 	//{
-	//	auto err = GetLastError();
-	//	wprintf(L"Service failed to run\n");
+	//	printf("Startup failed\n");
 	//	return 1;
 	//}
 
+	////Create Listening Socket
+	//if (!server.CreateListeningSocket())
+	//{
+	//	printf("CreateListeningSocket failed.\n");
+	//	return 1;
+	//}
 
+	////Run Server Loop
+	//server.Run();
 
-	Server server;
-
-	//Start Server
-	if (!server.Startup())
-	{
-		printf("Startup failed\n");
-		return 1;
-	}
-
-	//Create Listening Socket
-	if (!server.CreateListeningSocket())
-	{
-		printf("CreateListeningSocket failed.\n");
-		return 1;
-	}
-
-	//Run Server Loop
-	server.Run();
-
-	return 0;
+	//return 0;
 }

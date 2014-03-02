@@ -6,36 +6,36 @@ using namespace service;
 using namespace io;
 
 
-AuditService* AuditService::audit = nullptr;
+ChatService* ChatService::chat = nullptr;
 
 //Main Service Function.
-void CALLBACK AuditService::ServiceThread(PTP_CALLBACK_INSTANCE instance, PVOID context, PTP_WORK work)
+void CALLBACK ChatService::ServiceThread(PTP_CALLBACK_INSTANCE instance, PVOID context, PTP_WORK work)
 {
-	audit = static_cast<AuditService*>(context);
+	chat = static_cast<ChatService*>(context);
 
 	//Start Server
-	if (!audit->server.Startup())
+	if (!chat->server.Startup())
 	{
-		audit->WriteEventLogEntry(L"WSAStartup failed", EVENTLOG_INFORMATION_TYPE);
+		chat->WriteEventLogEntry(L"WSAStartup failed", EVENTLOG_INFORMATION_TYPE);
 		return;
 	}
 
 	//Create Listening Socket
-	if (!audit->server.CreateListeningSocket())
+	if (!chat->server.CreateListeningSocket())
 	{
-		audit->WriteEventLogEntry(L"Create Listening Socket failed", EVENTLOG_INFORMATION_TYPE);
+		chat->WriteEventLogEntry(L"Create Listening Socket failed", EVENTLOG_INFORMATION_TYPE);
 		return;
 	}
 	
 	//Run Server Loop
-	audit->server.Run();
+	chat->server.Run();
 
 	//Signal stop event.
-	SetEvent(audit->stop_event);
+	//SetEvent(audit->stop_event);
 }
 
 
-AuditService::AuditService(PWSTR serviceName, BOOL canStop, BOOL canShutdown, BOOL canPauseContinue) : ServiceBase(serviceName, canStop, canShutdown, canPauseContinue)
+ChatService::ChatService(PWSTR serviceName, BOOL canStop, BOOL canShutdown, BOOL canPauseContinue) : ServiceBase(serviceName, canStop, canShutdown, canPauseContinue)
 {
     stopping = FALSE;
 
@@ -47,7 +47,7 @@ AuditService::AuditService(PWSTR serviceName, BOOL canStop, BOOL canShutdown, BO
 }
 
 
-AuditService::~AuditService(void)
+ChatService::~ChatService(void)
 {
 	//Close Handle
     if (stop_event)
@@ -59,13 +59,13 @@ AuditService::~AuditService(void)
 
 
 //On Service Start
-void AuditService::OnStart(DWORD consArgc, LPWSTR* consArgv)
+void ChatService::OnStart(DWORD consArgc, LPWSTR* consArgv)
 {
 	//Log Start
 	WriteEventLogEntry(L"Service Start", EVENTLOG_INFORMATION_TYPE);
 
 	//Service Runs on different thread
-	work = CreateThreadpoolWork(&AuditService::ServiceThread, this, NULL);
+	work = CreateThreadpoolWork(&ChatService::ServiceThread, this, NULL);
 
 	if (work == NULL)
 	{
@@ -78,18 +78,19 @@ void AuditService::OnStart(DWORD consArgc, LPWSTR* consArgv)
 
 
 //On Service Stop
-void AuditService::OnStop()
+void ChatService::OnStop()
 {
     //Log Stop
     WriteEventLogEntry(L"Service Stop", EVENTLOG_INFORMATION_TYPE);
 
 	//Signal Stopping
 	stopping = TRUE;
-
-	//Close Service
-	audit->~AuditService();
-	CloseThreadpoolWork(work);
+	SetEvent(stop_event);
 
     if (WaitForSingleObject(stop_event, INFINITE) != WAIT_OBJECT_0)
         throw GetLastError();
+
+	//Close Service
+	chat->~ChatService();
+	CloseThreadpoolWork(work);
 }

@@ -5,11 +5,11 @@
 
 namespace service
 {
-	class AuditService : public ServiceBase
+	class ChatService : public ServiceBase
 	{
 	public:
-		AuditService(PWSTR serviceName, BOOL canStop = TRUE, BOOL canShutdown = TRUE, BOOL canPauseContinue = FALSE);
-		virtual ~AuditService(void);
+		ChatService(PWSTR serviceName, BOOL canStop = TRUE, BOOL canShutdown = TRUE, BOOL canPauseContinue = FALSE);
+		virtual ~ChatService(void);
 
 	protected:
 		static void CALLBACK ServiceThread(PTP_CALLBACK_INSTANCE instance, PVOID context, PTP_WORK work);
@@ -18,7 +18,7 @@ namespace service
 		virtual void OnStop();
 
 	protected:
-		static AuditService* audit;
+		static ChatService* chat;
 
 		TP_WORK* work;
 
